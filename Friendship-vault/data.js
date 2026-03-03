@@ -3,7 +3,7 @@
 // Put audio in: assets/audio/
 
 const QUOTES = [
-  "Some people feel like sunlight in a room that didn’t know it was cold.",
+  "Some people feel like sunlight in a room that I didn’t know it was cold.",
   "Memory is love with good organization.",
   "If life were a diary, you’d be the pages I never skip.",
   "We don’t need perfect days — we need honest ones.",
@@ -32,4 +32,5 @@ const PHOTOS = [
   // Example:
   // { src: "assets/photos/us-1.jpg", caption: "Beach day" },
   // { src: "assets/photos/us-2.jpg", caption: "That smile" }
+
 ];
