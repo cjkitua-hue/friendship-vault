@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Friendship Vault</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">FV</div>
+      <div>
+        <div class="brand-title">Friendship Vault</div>
+        <div class="brand-subtitle">memories • updates • quiet joy</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn" data-section="home">Home</button>
+      <button class="nav-btn" data-section="memories">Memories</button>
+      <button class="nav-btn" data-section="gallery">Gallery</button>
+      <button class="nav-btn" data-section="audio">Audio</button>
+      <button class="nav-btn" data-section="notes">Notes</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- HOME -->
+    <section id="home" class="section active">
+      <div class="hero card">
+        <h1>For us — in one place.</h1>
+        <p class="muted">
+          A small, private corner of the internet for stories, photos, and moments we don’t want to lose.
+        </p>
+
+        <div class="quote">
+          <div class="quote-title">Today’s line</div>
+          <div id="quoteText" class="quote-text"></div>
+        </div>
+
+        <div class="cta-row">
+          <button class="primary" id="randomMemoryBtn">Show me a random memory</button>
+          <button class="ghost" id="scrollToMemoriesBtn">Go to timeline</button>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h2>What’s inside</h2>
+          <ul class="list">
+            <li>Timeline stories (date + tags)</li>
+            <li>Photo gallery (click to enlarge)</li>
+            <li>Audio corner (optional)</li>
+            <li>Private notes saved on this device</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2>How to add memories</h2>
+          <p class="muted">
+            Open <span class="pill">data.js</span> and add a new object to the <span class="pill">MEMORIES</span> array.
+            That’s it.
+          </p>
+          <div class="codehint">
+            Tip: keep dates as <b>YYYY-MM-DD</b> so sorting works.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEMORIES -->
+    <section id="memories" class="section">
+      <div class="section-head">
+        <h2>Timeline</h2>
+        <div class="filters">
+          <input id="searchInput" class="input" placeholder="Search memories (title, story, tags)..." />
+          <select id="tagSelect" class="select">
+            <option value="">All tags</option>
+          </select>
+          <select id="sortSelect" class="select">
+            <option value="desc">Newest first</option>
+            <option value="asc">Oldest first</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="memoriesList" class="cards"></div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="section">
+      <div class="section-head">
+        <h2>Gallery</h2>
+        <p class="muted">Click a photo to focus on it.</p>
+      </div>
+
+      <div id="galleryGrid" class="gallery"></div>
+    </section>
+
+    <!-- AUDIO -->
+    <section id="audio" class="section">
+      <div class="section-head">
+        <h2>Audio Corner</h2>
+        <p class="muted">A voice note, a song, or a tiny message.</p>
+      </div>
+
+      <div class="card">
+        <p class="muted">
+          If you add an mp3 inside <span class="pill">assets/audio/</span>, update the filename in <span class="pill">data.js</span>.
+        </p>
+        <audio id="audioPlayer" controls preload="none" class="audio"></audio>
+      </div>
+    </section>
+
+    <!-- NOTES -->
+    <section id="notes" class="section">
+      <div class="section-head">
+        <h2>Private Notes</h2>
+        <p class="muted">These save only in your browser on this device.</p>
+      </div>
+
+      <div class="card">
+        <textarea id="notesBox" class="textarea" placeholder="Write anything…"></textarea>
+        <div class="note-row">
+          <button class="primary" id="saveNotesBtn">Save</button>
+          <button class="ghost" id="clearNotesBtn">Clear</button>
+          <div id="saveStatus" class="muted small"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL for image zoom -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-inner">
+      <button id="closeModal" class="modal-close" aria-label="Close">✕</button>
+      <img id="modalImg" alt="" />
+      <div id="modalCaption" class="modal-caption"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="muted small">Made with calm energy • Friendship Vault</div>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
