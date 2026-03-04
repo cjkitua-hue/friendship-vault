@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Friendship Vault</title>
+  <title>My Vault</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="logo" aria-hidden="true">FV</div>
+      <div class="logo" aria-hidden="true">MV</div>
       <div>
-        <div class="brand-title">Friendship Vault</div>
+        <div class="brand-title">My Vault</div>
         <div class="brand-subtitle">memories • updates • quiet joy</div>
       </div>
     </div>
@@ -32,7 +32,7 @@
       <div class="hero card">
         <h1>For us — in one place.</h1>
         <p class="muted">
-          A small, private corner of the internet for stories, photos, and moments we don’t want to lose.
+          A small, private corner of the internet for stories, photos, and moments I don’t want to lose.
         </p>
 
         <div class="quote">
@@ -85,61 +85,178 @@
           </select>
         </div>
       </div>
+      
+      <div class="card" id="addMemoryCard" style="margin-bottom:12px;">
 
+  	<!-- Collapsible Button Bar -->
+  	<button id="toggleAddMemory" class="addbar" type="button">
+    	  <span>＋ Add memory</span>
+          <span class="muted small">tap to expand</span>
+  	</button>
+
+	<!-- Collapsible Body -->
+  	<div id="addMemoryBody" class="add-body">
+
+    	  <h3 style="margin-top:16px;">Add a memory</h3>
+
+   	  <div class="filters">
+   	    <input id="newDate" class="input" placeholder="Date (YYYY-MM-DD)" />
+ 	    <input id="newTitle" class="input" placeholder="Title" />
+	    <input id="newTags" class="input" placeholder="Tags (comma separated)" />
+  	  </div>
+
+   	  <div style="margin-top:10px;">
+  	    <textarea id="newStory" class="textarea" placeholder="Write the story..."></textarea>
+  	  </div>
+
+   	  <div class="filters" style="margin-top:10px;">
+   	    <input id="newMedia" class="input" type="file" multiple
+    	      accept="image/*,audio/*,video/*" />
+  	    <button class="primary" id="addMemoryBtn">Add</button>
+ 	    <button class="ghost" id="exportBtn">Export backup (JSON)</button>
+ 	    <input id="importFile" class="input" type="file" accept="application/json" />
+  	    <button class="ghost" id="importBtn">Import backup</button>
+ 	    <div id="addStatus" class="muted small"></div>
+ 	  </div>
+
+	</div>
+
+      </div>
+
+  	<p class="muted small" style="margin-top:10px;">
+   	 Saves on this browser/device only (like a private local app). Use Export for backups.
+  	</p>
+       </div>
       <div id="memoriesList" class="cards"></div>
     </section>
 
     <!-- GALLERY -->
-    <section id="gallery" class="section">
-      <div class="section-head">
-        <h2>Gallery</h2>
-        <p class="muted">Click a photo to focus on it.</p>
-      </div>
+<section id="gallery" class="section">
+  <div class="section-head">
+    <h2>Gallery</h2>
+    <p class="muted">Photos & videos — uploaded here or attached to memories.</p>
+  </div>
 
-      <div id="galleryGrid" class="gallery"></div>
-    </section>
+  <!-- Gallery controls -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="filters">
+      <button class="primary" id="galleryAddBtn" type="button">+ Add photos/videos</button>
+      <input id="galleryFileInput" class="input" type="file" multiple accept="image/*,video/*" hidden />
 
-    <!-- AUDIO -->
-    <section id="audio" class="section">
-      <div class="section-head">
-        <h2>Audio Corner</h2>
-        <p class="muted">A voice note, a song, or a tiny message.</p>
-      </div>
+      <!-- Optional filters (we’ll wire them in JS later) -->
+      <select id="galleryFilterSelect" class="select">
+        <option value="all">All media</option>
+        <option value="fromMemories">From memories</option>
+        <option value="standalone">Standalone</option>
+      </select>
 
-      <div class="card">
-        <p class="muted">
-          If you add an mp3 inside <span class="pill">assets/audio/</span>, update the filename in <span class="pill">data.js</span>.
-        </p>
-        <audio id="audioPlayer" controls preload="none" class="audio"></audio>
-      </div>
-    </section>
+      <input id="gallerySearchInput" class="input" placeholder="Search media (title, tags)..." />
+      <div id="galleryStatus" class="muted small"></div>
+    </div>
 
+    <p class="muted small" style="margin-top:8px;">
+      Tip: Gallery shows both standalone uploads and media attached to memories (no need to add twice).
+    </p>
+  </div>
+
+  <div id="galleryGrid" class="gallery"></div>
+</section>
+
+<!-- AUDIO -->
+<section id="audio" class="section">
+  <div class="section-head">
+    <h2>Audio Corner</h2>
+    <p class="muted">Upload audio memories here (voice notes, songs, tiny messages).</p>
+  </div>
+
+  <!-- Audio controls -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="filters">
+      <button class="primary" id="audioAddBtn" type="button">+ Add audio</button>
+      <input id="audioFileInput" class="input" type="file" multiple accept="audio/*" hidden />
+
+      <input id="audioSearchInput" class="input" placeholder="Search audio (title, tags)..." />
+      <div id="audioStatus" class="muted small"></div>
+    </div>
+
+    <p class="muted small" style="margin-top:8px;">
+      Audio uploads save on this device (IndexedDB). Later we can add recording too.
+    </p>
+  </div>
+
+  <!-- Selected player (optional) -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="muted small" style="margin-bottom:6px;">Now playing</div>
+    <audio id="audioPlayer" controls preload="none" class="audio"></audio>
+  </div>
+
+  <!-- Audio list -->
+  <div id="audioList" class="cards"></div>
+</section>
     <!-- NOTES -->
-    <section id="notes" class="section">
-      <div class="section-head">
-        <h2>Private Notes</h2>
-        <p class="muted">These save only in your browser on this device.</p>
+<section id="notes" class="section">
+  <div class="section-head">
+    <h2>Private Notes</h2>
+    <p class="muted">These save only in your browser on this device.</p>
+  </div>
+
+  <div class="card">
+
+    <!-- Notes Controls -->
+    <div class="notes-controls">
+
+      <div class="notes-row">
+        <label class="notes-label">Page</label>
+
+        <select id="notesPageSelect" class="select"></select>
+
+        <button id="notesNewBtn" class="ghost" type="button">+ New</button>
+        <button id="notesRenameBtn" class="ghost" type="button">Rename</button>
+        <button id="notesDeleteBtn" class="ghost" type="button">Delete</button>
+
+        <button id="notesIndexBtn" class="primary" type="button">Index</button>
       </div>
 
-      <div class="card">
-        <textarea id="notesBox" class="textarea" placeholder="Write anything…"></textarea>
-        <div class="note-row">
-          <button class="primary" id="saveNotesBtn">Save</button>
-          <button class="ghost" id="clearNotesBtn">Clear</button>
-          <div id="saveStatus" class="muted small"></div>
-        </div>
+      <div class="notes-row">
+        <input id="notesSearch" class="input" placeholder="Search all pages (title, tags, text)..." />
+        <input id="notesTagInput" class="input" placeholder="Add tag and press Enter…" />
       </div>
-    </section>
+
+      <div id="notesTagList" class="notes-tags"></div>
+
+    </div>
+
+    <!-- Index view -->
+    <div id="notesIndexPanel" class="notes-index card" style="display:none;"></div>
+
+    <!-- Actual notebook -->
+    <textarea id="notesBox" class="textarea" placeholder="Write your thoughts…"></textarea>
+
+    <div class="note-row">
+      <button class="ghost" id="editNotesBtn" type="button">Edit</button>
+      <button class="primary" id="saveNotesBtn">Save</button>
+      <button class="ghost" id="clearNotesBtn">Clear</button>
+      <div id="saveStatus" class="muted small"></div>
+    </div>
+
+  </div>
+</section>
   </main>
 
-  <!-- MODAL for image zoom -->
-  <div id="modal" class="modal" aria-hidden="true">
-    <div class="modal-inner">
-      <button id="closeModal" class="modal-close" aria-label="Close">✕</button>
-      <img id="modalImg" alt="" />
-      <div id="modalCaption" class="modal-caption"></div>
-    </div>
+  <!-- MODAL for media zoom -->
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="modal-inner">
+    <button id="closeModal" class="modal-close" aria-label="Close">✕</button>
+
+    <!-- Image preview -->
+    <img id="modalImg" alt="" style="display:none;" />
+
+    <!-- Video preview -->
+    <video id="modalVideo" controls style="display:none; max-width:100%; border-radius:16px;"></video>
+
+    <div id="modalCaption" class="modal-caption"></div>
   </div>
+</div>
 
   <footer class="footer">
     <div class="muted small">Made with calm energy • Friendship Vault</div>
