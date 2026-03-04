@@ -253,13 +253,15 @@ html,body{ margin:0; padding:0; background: radial-gradient(1200px 600px at 20% 
 .modal.show{ display:flex; align-items:center; justify-content:center; }
 .modal-inner{
   position: relative;
-  max-width: 900px;
-  width: 100%;
-  border-radius: 18px;
-  border: 1px solid var(--stroke);
-  background: rgba(15,17,16,.88);
-  box-shadow: var(--shadow);
-  padding: 12px;
+  background: linear-gradient(145deg,#181818,#0f0f0f);
+  border-radius: 24px;
+  padding: 28px;
+  border: 2px solid rgba(240, 173, 49, 0.55);
+  box-shadow:
+    0 25px 60px rgba(0,0,0,.65),
+    0 0 0 3px rgba(191,154,84,.12),
+    0 0 30px rgba(191,154,84,.15);
+  overflow: hidden;
 }
 .modal-inner img{
   width: 100%;
@@ -286,5 +288,639 @@ html,body{ margin:0; padding:0; background: radial-gradient(1200px 600px at 20% 
   padding: 18px;
   text-align:center;
   background: rgba(15,17,16,.55);
+}
+/* ---------- NOTES THEME UPGRADE ---------- */
 
+/* 1) Overall page: off-white, warm, elegant */
+html, body{
+  background:
+    radial-gradient(1100px 600px at 10% 0%, rgba(143,91,62,.10), transparent 60%),
+    radial-gradient(900px 500px at 95% 10%, rgba(126,143,98,.10), transparent 55%),
+    #f6f1e7; /* off-white base */
+  color: #141414;
+}
+
+/* Make cards readable on light background */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+}
+
+/* Topbar: clean black/olive undertone on off-white */
+.topbar{
+  background: rgba(246,241,231,.82);
+  border-bottom: 1px solid rgba(0,0,0,.10);
+  backdrop-filter: blur(12px);
+}
+
+.brand-title{ color: #151515; }
+.brand-subtitle{ color: rgba(0,0,0,.55); }
+
+.logo{
+  background: linear-gradient(135deg, rgba(191,154,84,.35), rgba(126,143,98,.30));
+  border: 1px solid rgba(0,0,0,.10);
+  color: #141414;
+}
+
+/* Nav buttons: beige surface + olive hover + gold active */
+.nav-btn{
+  color: #161616;
+  border: 1px solid rgba(0,0,0,.14);
+  background: rgba(255,255,255,.55);
+}
+.nav-btn:hover{
+  border-color: rgba(126,143,98,.45); /* sage/olive */
+  background: rgba(126,143,98,.10);
+}
+.nav-btn.active{
+  border-color: rgba(191,154,84,.55); /* gold */
+  background: linear-gradient(135deg, rgba(191,154,84,.22), rgba(143,91,62,.10));
+}
+
+/* Muted text for light theme */
+.muted{ color: rgba(0,0,0,.62); }
+
+/* Hero heading: subtle “black + gold” cue */
+.hero h1{
+  color: #121212;
+  letter-spacing: .2px;
+}
+.hero h1::after{
+  content: "";
+  display:block;
+  height: 3px;
+  width: 84px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(191,154,84,.95), rgba(126,143,98,.55));
+}
+
+/* Quote card: sage paper feel */
+.quote{
+  border: 1px solid rgba(126,143,98,.25);
+  background: rgba(126,143,98,.08);
+}
+
+/* Primary + ghost buttons */
+.primary{
+  color: #111;
+  border: 1px solid rgba(191,154,84,.45);
+  background: linear-gradient(135deg, rgba(191,154,84,.30), rgba(143,91,62,.10));
+}
+.primary:hover{ border-color: rgba(191,154,84,.75); }
+
+.ghost{
+  color: #161616;
+  border: 1px solid rgba(0,0,0,.14);
+  background: rgba(255,255,255,.50);
+}
+.ghost:hover{
+  border-color: rgba(143,91,62,.45);
+  background: rgba(143,91,62,.08);
+}
+
+/* Inputs / selects look like stationery */
+.input, .select{
+  background: rgba(255,255,255,.75);
+  color: #141414;
+  border: 1px solid rgba(0,0,0,.14);
+}
+
+/* Tags: rotate between gold/olive/beige accents */
+.tag{
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.65);
+  color: #1a1a1a;
+}
+.tag:nth-child(3n+1){
+  border-color: rgba(191,154,84,.35);
+  background: rgba(191,154,84,.14);
+}
+.tag:nth-child(3n+2){
+  border-color: rgba(126,143,98,.35);
+  background: rgba(126,143,98,.14);
+}
+.tag:nth-child(3n+3){
+  border-color: rgba(198,178,144,.45); /* beige */
+  background: rgba(198,178,144,.20);
+}
+
+/* Gallery caption: black ink */
+.thumb .cap{
+  color: rgba(20,20,20,.92);
+  text-shadow: 0 2px 12px rgba(255,255,255,.65);
+}
+
+/* Footer on light theme */
+.footer{
+  border-top: 1px solid rgba(0,0,0,.10);
+  background: rgba(246,241,231,.72);
+}
+
+/* 2) NOTES section: golden undertones, “desk” vibe */
+#notes .card{
+  background:
+    radial-gradient(900px 500px at 15% 10%, rgba(191,154,84,.18), transparent 60%),
+    radial-gradient(700px 420px at 85% 25%, rgba(143,91,62,.12), transparent 55%),
+    rgba(255,255,255,.82);
+  border: 1px solid rgba(191,154,84,.22);
+}
+
+/* Notes font + writing feel */
+#notes .textarea{
+  font-family: "Comic Sans MS", "Comic Sans", "Trebuchet MS", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+
+  color: #0e0e0e; /* black ink */
+  background:
+    linear-gradient(transparent 31px, rgba(191,154,84,.10) 32px) 0 0 / 100% 32px,
+    rgba(255,255,255,.88); /* subtle “lined paper” */
+  border: 1px solid rgba(0,0,0,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+
+/* Notes buttons: more “golden desk” */
+#notes .primary{
+  border-color: rgba(191,154,84,.60);
+  background: linear-gradient(135deg, rgba(191,154,84,.36), rgba(143,91,62,.14));
+}
+#notes .ghost{
+  border-color: rgba(0,0,0,.16);
+  background: rgba(255,255,255,.62);
+}
+/* Softer typography feel overall */
+.hero h1{ font-size: 34px; }
+.mem-title{ font-size: 18px; }
+.mem-story{ font-size: 14.5px; }
+
+/* ---------- Add Memory collapsible bar ---------- */
+.addbar{
+  width: 100%;
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: linear-gradient(135deg, rgba(191,154,84,.20), rgba(126,143,98,.12));
+  color: #141414;
+  cursor:pointer;
+  font-weight: 700;
+}
+
+.addbar:hover{
+  border-color: rgba(191,154,84,.40);
+  background: linear-gradient(135deg, rgba(191,154,84,.26), rgba(126,143,98,.16));
+}
+
+.add-body{ margin-top: 12px; }
+.add-body.collapsed{ display:none; }
+
+/* ---------- Add Memory unified graphite tone ---------- */
+#addMemoryCard input,
+#addMemoryCard textarea,
+#addMemoryCard select{
+  color: rgba(0,0,0,.55) !important;  /* match placeholder tone */
+  font-weight: 500;
+}
+
+/* Keep placeholder slightly softer but same family */
+#addMemoryCard input::placeholder,
+#addMemoryCard textarea::placeholder{
+  color: rgba(0,0,0,.45) !important;
+}
+
+/* Optional: match borders perfectly */
+#addMemoryCard .input,
+#addMemoryCard .textarea,
+#addMemoryCard .select{
+  border-color: rgba(0,0,0,.18) !important;
+}
+
+/* ---------- Memory modal layout ---------- */
+.modal-caption{
+  text-align: left;
+}
+
+.mem-modal-title{
+  margin: 8px 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+  color: rgba(0,0,0,.78);
+}
+
+.mem-modal-date{
+  font-size: 12px;
+  color: rgba(0,0,0,.50);
+  margin-bottom: 12px;
+}
+
+.mem-modal-story{
+  line-height: 1.7;
+  color: rgba(0,0,0,.62);
+  margin-bottom: 12px;
+  white-space: pre-wrap; /* keeps line breaks if you type them */
+}
+
+.mem-modal-tags{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.mem-modal-media{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.media-btn{
+  border-radius: 999px;
+  padding: 10px 12px;
+  cursor:pointer;
+  border: 1px solid rgba(0,0,0,.14);
+  background: rgba(255,255,255,.70);
+  color: rgba(0,0,0,.70);
+  font-weight: 700;
+}
+
+.media-btn:hover{
+  border-color: rgba(191,154,84,.50);
+  background: rgba(191,154,84,.14);
+}
+/* ===== Modal readability on dark ===== */
+.modal{
+  background: rgba(0,0,0,.72);
+  backdrop-filter: blur(10px);
+}
+
+/* Make the popup smaller + centered */
+.modal-inner{
+  max-width: 720px;
+  width: min(720px, 92vw);
+  max-height: 78vh;
+  overflow: auto;
+
+  border-radius: 22px;
+  padding: 22px 22px 18px;
+
+  background: linear-gradient(145deg, #1b1b1b, #0f0f0f);
+  border: 2px solid rgba(191,154,84,.60);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.70),
+    0 0 0 4px rgba(191,154,84,.14),
+    0 0 40px rgba(191,154,84,.22);
+}
+
+/* Ensure close button is always visible */
+.modal-close{
+  position: sticky;
+  top: 10px;
+  float: right;
+  z-index: 5;
+
+  border: 1px solid rgba(191,154,84,.45);
+  background: rgba(0,0,0,.35);
+  color: rgba(255,255,255,.88);
+}
+
+/* Text in modal */
+.modal-caption,
+.mem-modal-title,
+.mem-modal-story,
+.mem-modal-date{
+  color: rgba(255,255,255,.86) !important;
+}
+
+.mem-modal-date{
+  color: rgba(191,154,84,.88) !important;
+}
+
+.mem-modal-title{
+  font-size: 22px;
+  text-shadow: 0 2px 12px rgba(191,154,84,.18);
+}
+/* ===== Ornate glow corners (stronger) ===== */
+.modal-inner::before,
+.modal-inner::after{
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  pointer-events: none;
+  border-radius: 38px;
+  filter: blur(18px);
+  opacity: .65;
+}
+
+.modal-inner::before{
+  top: -55px;
+  left: -55px;
+  background:
+    radial-gradient(circle at 55% 55%, rgba(255,214,120,.95), transparent 65%),
+    radial-gradient(circle at 25% 25%, rgba(191,154,84,.65), transparent 70%);
+}
+
+.modal-inner::after{
+  bottom: -55px;
+  right: -55px;
+  background:
+    radial-gradient(circle at 45% 45%, rgba(255,214,120,.95), transparent 65%),
+    radial-gradient(circle at 70% 70%, rgba(191,154,84,.65), transparent 70%);
+}
+/* ===== Fixed-size memory cards ===== */
+.mem-card{
+  height: 220px;              /* tweak this */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mem-card .muted.small{
+  display: -webkit-box;
+  -webkit-line-clamp: 3;      /* show 3 lines of preview */
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mem-card .tags{
+  margin-top: auto;           /* pushes tags to bottom */
+}
+
+/* ===== Notes: match placeholder graphite tone ===== */
+#notes .textarea{
+  color: rgba(0,0,0,.53) !important;     /* same family as placeholder */
+  font-weight: 500;
+}
+
+/* keep placeholder slightly softer */
+#notes .textarea::placeholder{
+  color: rgba(0,0,0,.45) !important;
+}
+/* ===== Modal tags: high-contrast museum labels ===== */
+.modal-inner .tag{
+  background: rgba(246,241,231,.12);       /* parchment glow */
+  border: 1px solid rgba(191,154,84,.55);  /* gold edge */
+  color: rgba(214,199,164,.95);            /* readable */
+}
+
+/* optional: make tags slightly luminous */
+.modal-inner .tag{
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
+}
+/* ===== Notes: parchment aesthetic + index ===== */
+
+.notes-controls{
+  margin-bottom: 12px;
+}
+
+.notes-row{
+  display:flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items:center;
+  margin-bottom: 10px;
+}
+
+.notes-label{
+  font-size: 12px;
+  color: rgba(0,0,0,.55);
+  margin-right: 4px;
+}
+
+.notes-tags{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.notes-tag{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.14);
+  background: rgba(255,255,255,.55);
+  color: rgba(0,0,0,.62);
+  font-size: 12px;
+}
+
+.notes-tag button{
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 900;
+  color: rgba(0,0,0,.45);
+}
+.notes-tag button:hover{ color: rgba(0,0,0,.70); }
+
+/* --- Old parchment textarea --- */
+#notes .textarea{
+  /* parchment base */
+  background:
+    /* subtle mottling */
+    radial-gradient(900px 420px at 25% 15%, rgba(191,154,84,.14), transparent 55%),
+    radial-gradient(700px 380px at 80% 20%, rgba(126,143,98,.10), transparent 60%),
+
+    /* faint “paper grain” illusion */
+    repeating-linear-gradient(
+      90deg,
+      rgba(0,0,0,.015) 0px,
+      rgba(0,0,0,.015) 1px,
+      transparent 2px,
+      transparent 6px
+    ),
+
+    /* notebook lines (keep yours if you already have; this blends nicely) */
+    linear-gradient(transparent 31px, rgba(191,154,84,.10) 32px) 0 0/100% 32px,
+
+    /* paper */
+    rgba(255,248,236,.92);
+
+  border: 1px solid rgba(0,0,0,.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.85),
+    0 10px 22px rgba(0,0,0,.08);
+
+  color: rgba(0,0,0,.55) !important;       /* your preferred graphite */
+  font-weight: 500;
+}
+
+#notes .textarea::placeholder{
+  color: rgba(0,0,0,.45) !important;
+}
+
+/* keep notes comfy to read */
+#notes .textarea{
+  line-height: 1.8;
+  padding: 14px 14px;
+}
+
+/* --- Index panel (catalog) --- */
+.notes-index{
+  margin-top: 12px;
+  padding: 14px;
+}
+
+.index-item{
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.60);
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.index-item:hover{
+  border-color: rgba(191,154,84,.40);
+  background: rgba(191,154,84,.08);
+}
+
+.index-title{
+  font-weight: 800;
+  color: rgba(0,0,0,.72);
+}
+
+.index-meta{
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(0,0,0,.50);
+}
+
+.index-tags{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.index-preview{
+  margin-top: 8px;
+  color: rgba(0,0,0,.60);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* ===== Notes index as title + date list ===== */
+.index-row{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.62);
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.index-row:hover{
+  border-color: rgba(191,154,84,.40);
+  background: rgba(191,154,84,.08);
+}
+
+.index-row-title{
+  font-weight: 800;
+  color: rgba(0,0,0,.72);
+  min-width: 0;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.index-row-date{
+  font-size: 12px;
+  color: rgba(0,0,0,.52);
+  white-space: nowrap;
+}
+/* ===== Notes parchment: remove vertical grid lines ===== */
+#notes .textarea{
+  background:
+    radial-gradient(900px 420px at 25% 15%, rgba(191,154,84,.14), transparent 55%),
+    radial-gradient(700px 380px at 80% 20%, rgba(126,143,98,.10), transparent 60%),
+
+    /* notebook horizontal lines only */
+    linear-gradient(transparent 31px, rgba(191,154,84,.10) 32px) 0 0/100% 32px,
+
+    rgba(255,248,236,.92) !important;
+}
+/* ===== Compact Audio Layout ===== */
+
+/* tighten the top upload/search bar spacing inside the first card */
+#audio .card{
+  padding: 14px;
+}
+
+/* make Now Playing card more compact */
+#audioPlayer{
+  width: 100%;
+  height: 34px;     /* makes the player bar less tall in many browsers */
+}
+
+/* audio list becomes a responsive grid */
+#audioList.cards{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+/* compact each audio item card */
+#audioList .card{
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+/* optional: shrink the Play button a touch */
+#audioList .card .ghost{
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+/* ===== Compact Gallery Grid ===== */
+.gallery{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+/* each thumb becomes a compact tile */
+.thumb{
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.65);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+
+/* images & videos fit the same box */
+.thumb img,
+.thumb video{
+  width: 100%;
+  height: 90px;           /* smaller preview height */
+  object-fit: cover;
+  display: block;
+  background: rgba(0,0,0,0.06);itn
+}
+
+/* caption becomes subtle and compact */
+.thumb .cap{
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.25;
+  color: rgba(0,0,0,0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
