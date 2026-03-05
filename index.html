@@ -51,23 +51,29 @@
           <h2>What’s inside</h2>
           <ul class="list">
             <li>Timeline stories (date + tags)</li>
-            <li>Photo gallery (click to enlarge)</li>
-            <li>Audio corner (optional)</li>
-            <li>Private notes saved on this device</li>
+            <li>Photo gallery (click to view)</li>
+            <li>Audio corner (listen to old audio files and recordings)</li>
+            <li>Private notes saved on this account</li>
           </ul>
         </div>
 
         <div class="card">
-          <h2>How to add memories</h2>
-          <p class="muted">
-            Open <span class="pill">data.js</span> and add a new object to the <span class="pill">MEMORIES</span> array.
-            That’s it.
-          </p>
-          <div class="codehint">
-            Tip: keep dates as <b>YYYY-MM-DD</b> so sorting works.
-          </div>
+          <h3>Quick actions</h3>
+		  <p class="muted">Add a memory with text + photos/video/audio — and record a voice note inside it.</p>
+
+		  <div class="cta-row">
+  			<button class="btn" id="btnAddMemory">+ New memory</button>
+ 			<button class="btn ghost" id="btnOpenGallery">Open gallery</button>
+		  </div>
+
+		  <ul class="bullets">
+ 			 <li><strong>Tags:</strong> separate with commas (e.g., <em>trip, family</em>)</li>
+ 			 <li><strong>Date:</strong> choose any date — timeline sorts automatically</li>
+ 			 <li><strong>Voice note:</strong> record directly inside a memory</li>
+		  </ul>
+
+		  <p class="hint">Tip: Gallery & Audio pages show media pulled from your memories.</p>
         </div>
-      </div>
     </section>
 
     <!-- MEMORIES -->
@@ -265,4 +271,5 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
