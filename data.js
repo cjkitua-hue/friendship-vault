@@ -17,7 +17,7 @@ const AUDIO_FILE = "assets/audio/The Road That Knows My Name.mp3"; // change or 
 const MEMORIES = [
   {
     date: "2026-02-01",
-    title: "Death by laughter",
+    title: "Healing With Laughter",
     story: "We were both trying to be serious and failed spectacularly. The kind of laughter that resets your nervous system.",
     tags: ["laughter", "chaos", "classic"]
   },
@@ -33,4 +33,5 @@ const PHOTOS = [
   // Example:
   // { src: "assets/photos/us-1.jpg", caption: "Beach day" },
   // { src: "assets/photos/us-2.jpg", caption: "That smile" }
+
 ];
