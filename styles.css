@@ -924,3 +924,37 @@ html, body{
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* shared card styling */
+.home-card{
+  padding: 28px;
+  border-radius: 22px;
+  border: 1px solid rgba(0,0,0,.06);
+  background: #ffffff;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.home-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.05);
+}
+
+/* LEFT CARD — THE VAULT REMEMBERS */
+.card-remember{
+  background: linear-gradient(
+      180deg,
+      #fbf7f0 0%,
+      #f6efe4 100%
+  );
+  border: 1px solid #e7d5b6;
+}
+
+/* RIGHT CARD — FUTURE ACTIONS */
+.card-future{
+  background: linear-gradient(
+      180deg,
+      #faf8ff 0%,
+      #f4f0ff 100%
+  );
+  border: 1px solid #d8ccff;
+}
