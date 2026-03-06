@@ -47,29 +47,43 @@
       </div>
 
       <div class="grid2">
-        <div class="card">
-          <h2>What’s inside</h2>
-          <ul class="list">
-            <li>Timeline stories (date + tags)</li>
-            <li>Photo gallery (click to view)</li>
-            <li>Audio corner (listen to old audio files and recordings)</li>
-            <li>Private notes saved on this account</li>
-          </ul>
-        </div>
+        <div class="home-card card remember">
+         <h3>🕰 The Vault Remembers</h3>
 
-        <div class="card">
-          <h3>Quick actions</h3>
-		  <p class="muted">Add a memory with text + photos/video/audio — and record a voice note inside it.</p>
+		 <p class="muted">
+		Sometimes the vault opens a small window to the past.
+		</p>
+
+		<div id="vaultRememberContent">
+  			<p class="memory-quote">
+   		    “A memory will appear here once your vault grows.”
+  			</p>
+
+ 		 	<p class="memory-meta">
+    		— waiting for your story
+ 		 </p>
+		</div>
+
+		<div class="cta-row">
+ 		  <button class="btn ghost" id="btnAnotherRemembered">
+    		Show another
+ 		 </button>
+		</div>
+      </div>
+
+        <div class="home-card card-future">
+          <h3>✦ Quick actions</h3>
+		  <p class="muted">Capture a moment, send a message to your future self,
+or preserve today in a time capsule.</p>
 
 		  <div class="cta-row">
   			<button class="btn" id="btnAddMemory">+ New memory</button>
- 			<button class="btn ghost" id="btnOpenGallery">Open gallery</button>
+ 			<button class="btn ghost" id="btnTimeCapsule">Time Capsule</button>
 		  </div>
 
 		  <ul class="bullets">
- 			 <li><strong>Tags:</strong> separate with commas (e.g., <em>trip, family</em>)</li>
- 			 <li><strong>Date:</strong> choose any date — timeline sorts automatically</li>
- 			 <li><strong>Voice note:</strong> record directly inside a memory</li>
+ 			 <li>Memories appear instantly in your timeline</li>
+  			 <li>Letters and capsules unlock in the future</li>
 		  </ul>
 
 		  <p class="hint">Tip: Gallery & Audio pages show media pulled from your memories.</p>
@@ -273,5 +287,6 @@
 </body>
 
 </html>
+
 
 
