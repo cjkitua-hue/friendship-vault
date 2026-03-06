@@ -951,10 +951,11 @@ html, body{
 
 /* RIGHT CARD — FUTURE ACTIONS */
 .card-future{
-  background: linear-gradient(180deg, #f8f4fa 0%, #f3ecf7 100%);
-  border: 1px solid #dccde4;
+  background: linear-gradient(180deg, #f7f2f8 0%, #efe7f3 100%);
+  border: 1px solid #d8c6df;
 }
   );
   border: 1px solid #d8ccff;
 }
+
 
