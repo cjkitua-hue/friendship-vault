@@ -957,6 +957,42 @@ html, body{
   );
   border: 1px solid #d8ccff;
 }
+.card-future{
+  background: linear-gradient(180deg, #e3d7ca 0%, #d4c4b4 100%);
+  border: 1px solid #bea78b;
+}
+.cta-row .btn,
+.cta-row .btn.ghost{
+  appearance: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.cta-row .btn{
+  background: #f2eadf;
+  border: 1px solid #cbb89b;
+  color: #1f1b17;
+}
+
+.cta-row .btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+}
+
+.cta-row .btn.ghost{
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(0,0,0,.12);
+  color: #1f1b17;
+}
+
+.cta-row .btn.ghost:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.06);
+}
 
 
 
