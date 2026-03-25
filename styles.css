@@ -951,16 +951,15 @@ html, body{
 
 /* RIGHT CARD — FUTURE ACTIONS */
 .card-future{
-  background: linear-gradient(180deg, #f7f2f8 0%, #efe7f3 100%);
-  border: 1px solid #d8c6df;
+  background: linear-gradient(180deg, #e9dfd3 0%, #d8c8b6 100%);
+  border: 1px solid #c5ad93;
 }
-  );
-  border: 1px solid #d8ccff;
+.cta-row{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.card-future{
-  background: linear-gradient(180deg, #e3d7ca 0%, #d4c4b4 100%);
-  border: 1px solid #bea78b;
-}
+
 .cta-row .btn,
 .cta-row .btn.ghost{
   appearance: none;
@@ -970,28 +969,18 @@ html, body{
   font-weight: 600;
   cursor: pointer;
   transition: all .18s ease;
-}
 
-.cta-row .btn{
-  background: #f2eadf;
-  border: 1px solid #cbb89b;
+  background: #efe4d6;
+  border: 1px solid #c5ad93;
   color: #1f1b17;
+
+  width: fit-content; /* keeps buttons neat instead of stretching weirdly */
 }
 
-.cta-row .btn:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(0,0,0,.08);
-}
-
-.cta-row .btn.ghost{
-  background: rgba(255,255,255,.55);
-  border: 1px solid rgba(0,0,0,.12);
-  color: #1f1b17;
-}
-
+.cta-row .btn:hover,
 .cta-row .btn.ghost:hover{
   transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(0,0,0,.06);
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
 }
 
 
