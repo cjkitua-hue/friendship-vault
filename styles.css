@@ -943,8 +943,8 @@ html, body{
 .card-remember{
   background: linear-gradient(
       180deg,
-      #fbf7f0 0%,
-      #f6efe4 100%
+      #e9dfd3 0%,
+       #d8c8b6 100%
   );
   border: 1px solid #e7d5b6;
 }
