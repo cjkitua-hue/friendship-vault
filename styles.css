@@ -984,36 +984,39 @@ html, body{
 }
 /* Tighter Hero Section */
 .hero {
-  padding: 40px 20px; /* Reduced from 60px/80px */
-  margin-bottom: 24px;
+  padding: 28px 16px; /* reduced further */
+  margin-bottom: 16px;
   text-align: center;
 }
 
 .hero h1 {
-  font-size: 2rem; /* Slightly smaller title */
-  margin-bottom: 8px;
+  font-size: 1.6rem; /* smaller title */
+  margin-bottom: 6px;
 }
 
-/* Slimmer Cards */
+/* Smaller, tighter cards */
 .home-card {
-  padding: 20px; /* Reduced from 28px */
-  border-radius: 18px; /* Slightly tighter corners */
+  padding: 14px; /* reduced more */
+  border-radius: 14px; /* tighter corners */
+  font-size: 0.9rem; /* slightly smaller text */
+  line-height: 1.4; /* tighter text spacing */
 }
 
-/* Ensure the grid fits better on one screen */
+/* Compact grid layout */
 .home-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px; /* Reduced gap */
-  max-width: 900px;
+  gap: 10px; /* tighter spacing between cards */
+  max-width: 720px; /* narrower layout = smaller cards */
   margin: 0 auto;
 }
 
-/* Adjust the "Future Actions" list padding */
+/* Tighter list inside cards */
 .action-list {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Tighter list */
+  gap: 6px; /* tighter list */
+  font-size: 0.85rem; /* slightly smaller text */
 }
 
 
