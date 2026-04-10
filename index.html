@@ -42,7 +42,6 @@
 
         <div class="cta-row">
           <button class="primary" id="randomMemoryBtn">Show me a random memory</button>
-          <button class="ghost" id="scrollToMemoriesBtn">Go to timeline</button>
         </div>
       </div>
 
@@ -123,6 +122,10 @@ or preserve today in a time capsule.</p>
  	    <input id="newTitle" class="input" placeholder="Title" />
 	    <input id="newTags" class="input" placeholder="Tags (comma separated)" />
   	  </div>
+	  <div id="unlockDateWrapper" style="display: none; margin-top: 10px;">
+      	<label style="display:block; font-size: 12px; color: var(--muted); margin-bottom: 4px;">Unlock Date (Stay hidden until this day):</label>
+      	<input id="newUnlockDate" type="date" class="input" />
+      </div>
 
    	  <div style="margin-top:10px;">
   	    <textarea id="newStory" class="textarea" placeholder="Write the story..."></textarea>
