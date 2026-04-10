@@ -38,7 +38,7 @@ async function kvGet(key){
   });
 }
 
-// ---------- Media store (Blob only, so memory modal keeps working) ----------
+// ---------- Media store ----------
 async function mediaPut(blob){
   const id = crypto.randomUUID();
   const db = await openDB();
@@ -72,7 +72,7 @@ async function mediaGetAllKeys(){
   });
 }
 
-// ---------- Media metadata (stored in kv) ----------
+// ---------- Media metadata ----------
 const MEDIA_META_PREFIX = "fv_media_meta_v1:";
 function mediaMetaKey(id){ return MEDIA_META_PREFIX + id; }
 
@@ -97,7 +97,9 @@ const STORAGE_KEY_MEMS = "fv_memories_v1";
 
 async function getAllMemories(){
   const saved = (await kvGet(STORAGE_KEY_MEMS)) || [];
-  return [...saved, ...(Array.isArray(MEMORIES) ? MEMORIES : [])];
+  // Combines your manual MEMORIES from data.js with the ones saved in the browser
+  const staticMems = (typeof MEMORIES !== 'undefined') ? MEMORIES : [];
+  return [...saved, ...staticMems];
 }
 
 async function saveMemories(savedMemories){
@@ -133,13 +135,9 @@ function uniqueTags(memories){
 async function renderTagOptions(){
   const sel = $("#tagSelect");
   if(!sel) return;
-
-  // reset, keep "All tags"
   sel.innerHTML = `<option value="">All tags</option>`;
-
   const all = await getAllMemories();
   const tags = uniqueTags(all);
-
   for(const t of tags){
     const opt = document.createElement("option");
     opt.value = t;
@@ -164,9 +162,14 @@ async function filterMemories(){
 
   let list = await getAllMemories();
 
-  if(tag){
-    list = list.filter(m => (m.tags || []).includes(tag));
-  }
+  // Logic: Hide future memories unless the date has passed
+  const today = new Date().toISOString().split('T')[0];
+  list = list.filter(m => {
+     if(!m.unlockDate) return true;
+     return m.unlockDate <= today;
+  });
+
+  if(tag) list = list.filter(m => (m.tags || []).includes(tag));
   if(q){
     list = list.filter(m => {
       const blob = `${m.title} ${m.story} ${(m.tags||[]).join(" ")}`.toLowerCase();
@@ -181,11 +184,10 @@ async function filterMemories(){
 function renderMemories(memories){
   const wrap = $("#memoriesList");
   if(!wrap) return;
-
   wrap.innerHTML = "";
 
   if(memories.length === 0){
-    wrap.innerHTML = `<div class="card"><div class="muted">No matches. Try a different search/tag.</div></div>`;
+    wrap.innerHTML = `<div class="card"><div class="muted">No memories found yet.</div></div>`;
     return;
   }
 
@@ -210,7 +212,7 @@ function renderMemories(memories){
   }
 }
 
-// ---------- Modal (supports image + video) ----------
+// ---------- Modals ----------
 function openModal({ kind, src, caption }){
   const img = $("#modalImg");
   const vid = $("#modalVideo");
@@ -221,18 +223,10 @@ function openModal({ kind, src, caption }){
   if(cap) cap.textContent = caption || "";
 
   if(kind === "video"){
-    if(vid){
-      vid.src = src;
-      vid.style.display = "block";
-    }
+    if(vid){ vid.src = src; vid.style.display = "block"; }
   } else {
-    if(img){
-      img.src = src;
-      img.alt = caption || "Media";
-      img.style.display = "block";
-    }
+    if(img){ img.src = src; img.alt = caption || "Media"; img.style.display = "block"; }
   }
-
   $("#modal").classList.add("show");
   $("#modal").setAttribute("aria-hidden", "false");
 }
@@ -240,760 +234,53 @@ function openModal({ kind, src, caption }){
 function closeModal(){
   $("#modal").classList.remove("show");
   $("#modal").setAttribute("aria-hidden", "true");
-
   const img = $("#modalImg");
   const vid = $("#modalVideo");
-
   if(img){ img.src = ""; img.style.display = "none"; }
   if(vid){ vid.pause?.(); vid.src = ""; vid.style.display = "none"; }
-
-  $("#modalCaption").textContent = "";
 }
 
-// ---------- Memory modal (media buttons) ----------
 async function openMemoryModal(m){
-  // Start with no image shown until user picks media
-  const modalImg = $("#modalImg");
-  if(modalImg){
-    modalImg.src = "";
-    modalImg.style.display = "none";
-  }
-  const modalVid = $("#modalVideo");
-  if(modalVid){
-    modalVid.pause?.();
-    modalVid.src = "";
-    modalVid.style.display = "none";
-  }
-
   const tagsHtml = (m.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("");
-
   const mediaButtons = (m.media || []).map((x, i) => {
-    const label =
-      x.type?.startsWith("image/") ? `Photo ${i+1}` :
-      x.type?.startsWith("video/") ? `Video ${i+1}` :
-      x.type?.startsWith("audio/") ? `Audio ${i+1}` :
-      `Media ${i+1}`;
-
-    return `<button class="media-btn" data-media-id="${escapeHtml(x.id)}" data-media-type="${escapeHtml(x.type)}">
-      ${label}
-    </button>`;
+    const label = x.type?.startsWith("image/") ? `Photo ${i+1}` : x.type?.startsWith("video/") ? `Video ${i+1}` : `Media ${i+1}`;
+    return `<button class="media-btn" data-media-id="${escapeHtml(x.id)}" data-media-type="${escapeHtml(x.type)}">${label}</button>`;
   }).join("");
 
   $("#modalCaption").innerHTML = `
     <div class="mem-modal-title">${escapeHtml(m.title)}</div>
     <div class="mem-modal-date">${escapeHtml(m.date)}</div>
-    <div class="mem-modal-story">${escapeHtml(m.story)}</div>
+    <div class="mem-modal-story" style="white-space: pre-wrap; margin: 15px 0;">${escapeHtml(m.story)}</div>
     <div class="mem-modal-tags">${tagsHtml}</div>
-    ${mediaButtons ? `<div class="mem-modal-media">${mediaButtons}</div>` : `<div class="muted small" style="margin-top:12px;">No media attached.</div>`}
+    ${mediaButtons ? `<div class="mem-modal-media">${mediaButtons}</div>` : ""}
     <div id="memMediaSlot" style="margin-top:14px;"></div>
   `;
 
   $("#modal").classList.add("show");
-  $("#modal").setAttribute("aria-hidden", "false");
-
   $$("#modalCaption [data-media-id]").forEach(btn => {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
-
       const id = btn.getAttribute("data-media-id");
       const type = btn.getAttribute("data-media-type") || "";
       const blob = await mediaGet(id);
       if(!blob) return;
-
       const url = URL.createObjectURL(blob);
       const slot = $("#memMediaSlot");
-
-      // Clear previous
-      if(slot) slot.innerHTML = "";
-      if(modalImg){ modalImg.style.display = "none"; modalImg.src = ""; }
-      if(modalVid){ modalVid.pause?.(); modalVid.style.display = "none"; modalVid.src = ""; }
-
-      if(type.startsWith("image/")){
-        if(modalImg){
-          modalImg.src = url;
-          modalImg.style.display = "block";
-        }
-      } else if(type.startsWith("video/")){
-        // Prefer modalVideo if present
-        if(modalVid){
-          modalVid.src = url;
-          modalVid.style.display = "block";
-        } else if(slot){
-          slot.innerHTML = `<video src="${url}" controls style="width:100%; border-radius:14px; max-height:60vh;"></video>`;
-        }
-      } else if(type.startsWith("audio/")){
-        if(slot){
-          slot.innerHTML = `<audio src="${url}" controls style="width:100%;"></audio>`;
-        }
-      } else {
-        if(slot){
-          slot.innerHTML = `<a href="${url}" target="_blank" rel="noopener">Open file</a>`;
-        }
-      }
+      slot.innerHTML = type.startsWith("image/") ? `<img src="${url}" style="width:100%; border-radius:14px;"/>` : `<video src="${url}" controls style="width:100%; border-radius:14px;"></video>`;
     });
   });
 }
 
-// ---------- Quotes ----------
+// ---------- Initializers ----------
 function initQuotes(){
-  if(!Array.isArray(QUOTES) || !QUOTES.length) return;
-  const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-  $("#quoteText").textContent = q;
-}
-
-// ---------- Gallery (IndexedDB-backed) ----------
-function initGalleryUI(){
-  const addBtn = $("#galleryAddBtn");
-  const fileInput = $("#galleryFileInput");
-  const status = $("#galleryStatus");
-
-  if(!addBtn || !fileInput) return;
-
-  function setStatus(msg){
-    if(!status) return;
-    status.textContent = msg;
-    setTimeout(()=> status.textContent = "", 1800);
-  }
-
-  addBtn.addEventListener("click", () => fileInput.click());
-
-  fileInput.addEventListener("change", async (e) => {
-    const files = Array.from(e.target.files || []);
-    if(files.length === 0) return;
-
-    let added = 0;
-
-    for(const f of files){
-      const kind = kindFromMime(f.type);
-      if(kind !== "image" && kind !== "video") continue;
-
-      const id = await mediaPut(f);
-
-      await mediaMetaSet(id, {
-        id,
-        kind,
-        mime: f.type,
-        title: f.name,
-        createdAt: Date.now(),
-        tags: [],
-        source: "standalone"
-      });
-
-      added++;
-    }
-
-    fileInput.value = "";
-    setStatus(added ? `Added ${added} file(s).` : "No valid image/video selected.");
-    renderGallery();
-  });
-
-  $("#gallerySearchInput")?.addEventListener("input", () => renderGallery());
-  $("#galleryFilterSelect")?.addEventListener("change", () => renderGallery());
-}
-
-async function renderGallery(){
-  const grid = $("#galleryGrid");
-  if(!grid) return;
-  grid.innerHTML = "";
-
-  const q = ($("#gallerySearchInput")?.value || "").trim().toLowerCase();
-  const filter = ($("#galleryFilterSelect")?.value || "all");
-
-  const keys = await mediaGetAllKeys();
-
-  const items = [];
-  for(const id of keys){
-    const meta = await mediaMetaGet(id);
-    if(!meta) continue;
-
-    const kind = meta.kind || kindFromMime(meta.mime || "");
-    if(kind !== "image" && kind !== "video") continue;
-
-    if(filter === "fromMemories" && meta.source !== "memory") continue;
-    if(filter === "standalone" && meta.source !== "standalone") continue;
-
-    if(q){
-      const blob = `${meta.title || ""} ${(meta.tags||[]).join(" ")}`.toLowerCase();
-      if(!blob.includes(q)) continue;
-    }
-
-    items.push({ id, meta, kind });
-  }
-
-  items.sort((a,b) => (b.meta.createdAt || 0) - (a.meta.createdAt || 0));
-
-  if(items.length === 0){
-    grid.innerHTML = `<div class="card"><div class="muted">
-      No gallery media yet. Use <b>+ Add photos/videos</b> or attach media to a memory.
-    </div></div>`;
-    return;
-  }
-
-  for(const it of items){
-    const blob = await mediaGet(it.id);
-    if(!blob) continue;
-
-    const url = URL.createObjectURL(blob);
-    const caption = it.meta.title || "";
-
-    const box = document.createElement("div");
-    box.className = "thumb";
-
-    if(it.kind === "video"){
-      box.innerHTML = `
-        <video src="${url}" preload="metadata" muted></video>
-        <div class="cap">${escapeHtml(caption)}</div>
-      `;
-      box.addEventListener("click", () => openModal({ kind: "video", src: url, caption }));
-    } else {
-      box.innerHTML = `
-        <img src="${url}" alt="${escapeHtml(caption || "Photo")}" loading="lazy" />
-        <div class="cap">${escapeHtml(caption)}</div>
-      `;
-      box.addEventListener("click", () => openModal({ kind: "image", src: url, caption }));
-    }
-
-    grid.appendChild(box);
+  if(typeof QUOTES !== 'undefined' && QUOTES.length){
+    $("#quoteText").textContent = QUOTES[Math.floor(Math.random() * QUOTES.length)];
   }
 }
 
-// ---------- Audio (IndexedDB-backed) ----------
-async function renderAudioList(){
-  const list = $("#audioList");
-  if(!list) return;
-
-  const q = ($("#audioSearchInput")?.value || "").trim().toLowerCase();
-
-  const keys = await mediaGetAllKeys();
-
-  const items = [];
-  for(const id of keys){
-    const meta = await mediaMetaGet(id);
-    if(!meta) continue;
-
-    const kind = meta.kind || kindFromMime(meta.mime || "");
-    if(kind !== "audio") continue;
-
-    if(q){
-      const blob = `${meta.title || ""} ${(meta.tags||[]).join(" ")}`.toLowerCase();
-      if(!blob.includes(q)) continue;
-    }
-
-    items.push({ id, meta });
-  }
-
-  items.sort((a,b) => (b.meta.createdAt || 0) - (a.meta.createdAt || 0));
-
-  if(items.length === 0){
-    list.innerHTML = `<div class="card"><div class="muted">No audio yet. Use <b>+ Add audio</b>.</div></div>`;
-    return;
-  }
-
-  list.innerHTML = "";
-
-  for(const it of items){
-    const row = document.createElement("div");
-    row.className = "card";
-    row.style.display = "flex";
-    row.style.alignItems = "center";
-    row.style.justifyContent = "space-between";
-    row.style.gap = "12px";
-
-    row.innerHTML = `
-      <div>
-        <div style="font-weight:800;">${escapeHtml(it.meta.title || "Audio")}</div>
-        <div class="muted small">${new Date(it.meta.createdAt || Date.now()).toISOString().slice(0,10)}</div>
-      </div>
-      <button class="ghost" type="button" data-play="${escapeHtml(it.id)}">Play</button>
-    `;
-
-    row.querySelector("[data-play]").addEventListener("click", async () => {
-      const blob = await mediaGet(it.id);
-      if(!blob) return;
-      const url = URL.createObjectURL(blob);
-      const player = $("#audioPlayer");
-      player.src = url;
-      player.play?.();
-    });
-
-    list.appendChild(row);
-  }
-}
-
-function initAudioUI(){
-  const addBtn = $("#audioAddBtn");
-  const fileInput = $("#audioFileInput");
-  const status = $("#audioStatus");
-
-  if(!addBtn || !fileInput) return;
-
-  function setStatus(msg){
-    if(!status) return;
-    status.textContent = msg;
-    setTimeout(()=> status.textContent = "", 1800);
-  }
-
-  addBtn.addEventListener("click", () => fileInput.click());
-
-  fileInput.addEventListener("change", async (e) => {
-    const files = Array.from(e.target.files || []);
-    if(files.length === 0) return;
-
-    let added = 0;
-
-    for(const f of files){
-      const kind = kindFromMime(f.type);
-      if(kind !== "audio") continue;
-
-      const id = await mediaPut(f);
-
-      await mediaMetaSet(id, {
-        id,
-        kind: "audio",
-        mime: f.type,
-        title: f.name,
-        createdAt: Date.now(),
-        tags: [],
-        source: "standalone"
-      });
-
-      added++;
-    }
-
-    fileInput.value = "";
-    setStatus(added ? `Added ${added} audio file(s).` : "No valid audio selected.");
-    renderAudioList();
-  });
-
-  $("#audioSearchInput")?.addEventListener("input", () => renderAudioList());
-}
-
-// ---------- Notes (your existing code kept as-is) ----------
-function initNotes(){
-  const PAGES_KEY = "fv_notes_pages_v1";
-  const CURRENT_KEY = "fv_notes_current_page_v1";
-
-  const box = $("#notesBox");
-  const saveBtn = $("#saveNotesBtn");
-  const clearBtn = $("#clearNotesBtn");
-  const editBtn = $("#editNotesBtn");
-
-  const pageSelect = $("#notesPageSelect");
-  const newBtn = $("#notesNewBtn");
-  const renameBtn = $("#notesRenameBtn");
-  const deleteBtn = $("#notesDeleteBtn");
-  const indexBtn = $("#notesIndexBtn");
-  const searchInput = $("#notesSearch");
-  const tagInput = $("#notesTagInput");
-  const tagList = $("#notesTagList");
-  const indexPanel = $("#notesIndexPanel");
-
-  if(!box || !pageSelect) return;
-
-  const nowISO = () => new Date().toISOString();
-
-  function loadPages(){
-    try{ return JSON.parse(localStorage.getItem(PAGES_KEY) || "[]"); }
-    catch{ return []; }
-  }
-
-  function savePages(pages){
-    localStorage.setItem(PAGES_KEY, JSON.stringify(pages));
-  }
-
-  function getCurrentId(){
-    return localStorage.getItem(CURRENT_KEY) || "";
-  }
-
-  function setCurrentId(id){
-    localStorage.setItem(CURRENT_KEY, id);
-  }
-
-  function makePage(){
-    const id = crypto.randomUUID();
-    const d = new Date();
-    const title = `Untitled — ${d.toISOString().slice(0,10)}`;
-    return { id, title, createdAt: nowISO(), updatedAt: nowISO(), tags: [], content: "", savedOnce: false };
-  }
-
-  function ensureStarterPage(pages){
-    if(pages.length) return pages;
-    const p = makePage();
-    pages.push(p);
-    savePages(pages);
-    setCurrentId(p.id);
-    return pages;
-  }
-
-  function currentPage(pages){
-    const id = getCurrentId();
-    return pages.find(p => p.id === id) || pages[0];
-  }
-
-  function setReadOnly(isReadOnly){
-    box.readOnly = isReadOnly;
-    if(editBtn) editBtn.textContent = isReadOnly ? "Edit" : "Lock";
-    if(saveBtn) saveBtn.disabled = isReadOnly;
-    if(clearBtn) clearBtn.disabled = isReadOnly;
-    if(tagInput) tagInput.disabled = isReadOnly;
-  }
-
-  function updateEditVisibility(p){
-    if(!editBtn) return;
-    editBtn.style.display = p.savedOnce ? "inline-block" : "none";
-  }
-
-  function renderSelect(pages){
-    const cur = currentPage(pages);
-    pageSelect.innerHTML = pages
-      .map(p => `<option value="${p.id}">${escapeHtml(p.title)}</option>`)
-      .join("");
-    pageSelect.value = cur.id;
-  }
-
-  function renderTags(p){
-    tagList.innerHTML = (p.tags || []).map(t => `
-      <span class="notes-tag">
-        ${escapeHtml(t)}
-        <button type="button" data-tag="${escapeHtml(t)}" aria-label="Remove tag">×</button>
-      </span>
-    `).join("");
-
-    $$("#notesTagList [data-tag]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if(box.readOnly) return;
-
-        const tag = btn.getAttribute("data-tag");
-        const pages = loadPages();
-        const cur = currentPage(pages);
-
-        cur.tags = (cur.tags || []).filter(x => x !== tag);
-        cur.updatedAt = nowISO();
-        savePages(pages);
-
-        renderTags(cur);
-      });
-    });
-  }
-
-  function openPage(p, { forceReadOnly } = {}){
-    box.value = p.content || "";
-    renderTags(p);
-    updateEditVisibility(p);
-
-    if(forceReadOnly === true){
-      setReadOnly(true);
-    } else if(forceReadOnly === false){
-      setReadOnly(false);
-    } else {
-      setReadOnly(p.savedOnce ? true : false);
-    }
-  }
-
-  function saveNow({ markSavedOnce } = {}){
-    const pages = loadPages();
-    const p = currentPage(pages);
-
-    p.content = box.value;
-    p.updatedAt = nowISO();
-
-    if(markSavedOnce) p.savedOnce = true;
-
-    savePages(pages);
-    updateEditVisibility(p);
-  }
-
-  function showIndex(pages, query=""){
-    const q = (query || "").trim().toLowerCase();
-
-    const filtered = pages.filter(p => {
-      if(!q) return true;
-      const inTitle = (p.title || "").toLowerCase().includes(q);
-      const inTags  = (p.tags || []).some(t => (t || "").toLowerCase().includes(q));
-      const inBody  = (p.content || "").toLowerCase().includes(q);
-      return inTitle || inTags || inBody;
-    });
-
-    indexPanel.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-        <div style="font-weight:800; color:rgba(0,0,0,.72);">Index</div>
-        <button type="button" class="ghost" id="closeIndexBtn">Close</button>
-      </div>
-
-      <div style="margin-top:12px;">
-        ${filtered.map(p => `
-          <div class="index-row" data-open-page="${p.id}">
-            <div class="index-row-title">${escapeHtml(p.title)}</div>
-            <div class="index-row-date">${escapeHtml((p.updatedAt || p.createdAt || "").slice(0,10))}</div>
-          </div>
-        `).join("") || `<div class="muted small">No pages found.</div>`}
-      </div>
-    `;
-
-    indexPanel.style.display = "block";
-
-    $("#closeIndexBtn")?.addEventListener("click", () => {
-      indexPanel.style.display = "none";
-    });
-
-    $$("#notesIndexPanel [data-open-page]").forEach(row => {
-      row.addEventListener("click", () => {
-        const id = row.getAttribute("data-open-page");
-        setCurrentId(id);
-
-        indexPanel.style.display = "none";
-
-        const latest = ensureStarterPage(loadPages());
-        renderSelect(latest);
-        const p = currentPage(latest);
-
-        openPage(p, { forceReadOnly: p.savedOnce ? true : false });
-      });
-    });
-  }
-
-  // ----- init state -----
-  let pages = ensureStarterPage(loadPages());
-  const cur = currentPage(pages);
-  setCurrentId(cur.id);
-  renderSelect(pages);
-  openPage(cur);
-
-  // ----- events -----
-  pageSelect.addEventListener("change", () => {
-    if(!box.readOnly){
-      saveNow();
-    }
-    setCurrentId(pageSelect.value);
-    pages = ensureStarterPage(loadPages());
-    const p = currentPage(pages);
-    openPage(p, { forceReadOnly: p.savedOnce ? true : false });
-  });
-
-  let debounce = null;
-  box.addEventListener("input", () => {
-    if(box.readOnly) return;
-    clearTimeout(debounce);
-    debounce = setTimeout(() => saveNow(), 350);
-  });
-
-  saveBtn?.addEventListener("click", () => {
-    const pages = loadPages();
-    const p = currentPage(pages);
-    saveNow({ markSavedOnce: true });
-    updateEditVisibility(p);
-  });
-
-  clearBtn?.addEventListener("click", () => {
-    if(box.readOnly) return;
-
-    const pages = loadPages();
-    const p = currentPage(pages);
-    p.content = "";
-    p.updatedAt = nowISO();
-    savePages(pages);
-
-    box.value = "";
-  });
-
-  newBtn.addEventListener("click", () => {
-    const pages = loadPages();
-    const p = makePage();
-
-    pages.unshift(p);
-    savePages(pages);
-    setCurrentId(p.id);
-
-    renderSelect(pages);
-    openPage(p, { forceReadOnly: false });
-
-    box.focus();
-  });
-
-  renameBtn.addEventListener("click", () => {
-    const pages = loadPages();
-    const p = currentPage(pages);
-
-    const name = prompt("Rename this page:", p.title);
-    if(!name) return;
-
-    p.title = name.trim();
-    p.updatedAt = nowISO();
-    savePages(pages);
-
-    renderSelect(pages);
-  });
-
-  deleteBtn.addEventListener("click", () => {
-    const pages = loadPages();
-    const p = currentPage(pages);
-
-    const ok = confirm(`Delete "${p.title}"? This cannot be undone.`);
-    if(!ok) return;
-
-    const left = pages.filter(x => x.id !== p.id);
-    const ensured = ensureStarterPage(left);
-
-    savePages(ensured);
-    setCurrentId(ensured[0].id);
-
-    renderSelect(ensured);
-    openPage(ensured[0]);
-  });
-
-  editBtn?.addEventListener("click", () => {
-    setReadOnly(!box.readOnly);
-    if(!box.readOnly) box.focus();
-  });
-
-  tagInput.addEventListener("keydown", (e) => {
-    if(e.key !== "Enter") return;
-    e.preventDefault();
-    if(box.readOnly) return;
-
-    const t = tagInput.value.trim();
-    if(!t) return;
-
-    const pages = loadPages();
-    const p = currentPage(pages);
-
-    p.tags = Array.from(new Set([...(p.tags || []), t]));
-    p.updatedAt = nowISO();
-    savePages(pages);
-
-    tagInput.value = "";
-    renderTags(p);
-  });
-
-  searchInput.addEventListener("input", () => {
-    const pages = ensureStarterPage(loadPages());
-    showIndex(pages, searchInput.value);
-  });
-
-  indexBtn.addEventListener("click", () => {
-    const pages = ensureStarterPage(loadPages());
-    showIndex(pages, searchInput.value);
-  });
-}
-
-// ---------- Add memory (stores blobs + meta so gallery/audio can list) ----------
-async function initAddMemory(){
-  const status = $("#addStatus");
-  const btn = $("#addMemoryBtn");
-  if(!btn) return;
-
-  function setStatus(msg){
-    if(!status) return;
-    status.textContent = msg;
-    setTimeout(() => (status.textContent = ""), 1600);
-  }
-
-  btn.addEventListener("click", async () => {
-    const date = ($("#newDate").value || "").trim() || new Date().toISOString().slice(0,10);
-    const title = ($("#newTitle").value || "").trim();
-    const story = ($("#newStory").value || "").trim();
-    const tags = ($("#newTags").value || "")
-      .split(",")
-      .map(s => s.trim())
-      .filter(Boolean);
-
-    if(!title || !story){
-      setStatus("Title and story are required.");
-      return;
-    }
-
-    const files = $("#newMedia")?.files;
-    const media = [];
-
-    if(files && files.length){
-      for(const f of files){
-        const id = await mediaPut(f);
-        media.push({ id, type: f.type, name: f.name });
-
-        // IMPORTANT: write meta so Gallery/Audio can list this attachment
-        const kind = kindFromMime(f.type);
-        await mediaMetaSet(id, {
-          id,
-          kind,
-          mime: f.type,
-          title: f.name,
-          createdAt: Date.now(),
-          tags: [],
-          source: "memory"
-        });
-      }
-    }
-
-    const newMem = { date, title, story, tags, media };
-
-    const saved = (await kvGet(STORAGE_KEY_MEMS)) || [];
-    saved.unshift(newMem);
-    await saveMemories(saved);
-
-    $("#newTitle").value = "";
-    $("#newStory").value = "";
-    $("#newTags").value = "";
-    if($("#newMedia")) $("#newMedia").value = "";
-
-    setStatus("Added.");
-    await renderTagOptions();
-    await filterMemories();
-
-    // refresh Gallery/Audio because memory attachments should appear there
-    renderGallery();
-    renderAudioList();
-  });
-}
-
-// ---------- Backup ----------
-async function initBackup(){
-  $("#exportBtn")?.addEventListener("click", async () => {
-    const saved = (await kvGet(STORAGE_KEY_MEMS)) || [];
-    const blob = new Blob([JSON.stringify(saved, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "friendship-vault-backup.json";
-    a.click();
-
-    URL.revokeObjectURL(url);
-  });
-
-  $("#importBtn")?.addEventListener("click", async () => {
-    const file = $("#importFile")?.files?.[0];
-    if(!file) return;
-
-    const text = await file.text();
-    const data = JSON.parse(text);
-    if(!Array.isArray(data)) throw new Error("Invalid backup format.");
-
-    await saveMemories(data);
-    await renderTagOptions();
-    await filterMemories();
-    alert("Imported successfully.");
-
-    // refresh other views
-    renderGallery();
-    renderAudioList();
-  });
-}
-
-// ---------- Nav / Filters / Modal ----------
 function initNav(){
   $$(".nav-btn").forEach(btn => {
     btn.addEventListener("click", () => setActiveSection(btn.dataset.section));
-  });
-
-  $("#scrollToMemoriesBtn")?.addEventListener("click", () => setActiveSection("memories"));
-
-  $("#randomMemoryBtn")?.addEventListener("click", async () => {
-    const all = await getAllMemories();
-    if(!all.length) return;
-    const m = all[Math.floor(Math.random() * all.length)];
-    setActiveSection("memories");
-    $("#searchInput").value = m.title;
-    filterMemories();
   });
 }
 
@@ -1001,92 +288,90 @@ function initAddMemoryToggle(){
   const body = $("#addMemoryBody");
   const btn = $("#toggleAddMemory");
   if(!body || !btn) return;
-
   body.classList.add("collapsed");
-
   btn.addEventListener("click", () => {
     body.classList.toggle("collapsed");
-    btn.querySelector(".small").textContent = body.classList.contains("collapsed")
-      ? "tap to expand"
-      : "tap to collapse";
+    btn.querySelector(".small").textContent = body.classList.contains("collapsed") ? "tap to expand" : "tap to collapse";
   });
 }
 
-function initFilters(){
-  $("#searchInput")?.addEventListener("input", filterMemories);
-  $("#tagSelect")?.addEventListener("change", filterMemories);
-  $("#sortSelect")?.addEventListener("change", filterMemories);
+async function initAddMemory(){
+  const btn = $("#addMemoryBtn");
+  if(!btn) return;
+
+  btn.addEventListener("click", async () => {
+    const title = $("#newTitle").value.trim();
+    const story = $("#newStory").value.trim();
+    if(!title || !story) return alert("Title and story required");
+
+    const media = [];
+    const files = $("#newMedia")?.files;
+    if(files){
+      for(const f of files){
+        const id = await mediaPut(f);
+        media.push({ id, type: f.type, name: f.name });
+        await mediaMetaSet(id, { id, kind: kindFromMime(f.type), mime: f.type, title: f.name, createdAt: Date.now(), source: "memory" });
+      }
+    }
+
+    const newMem = {
+      date: $("#newDate").value || new Date().toISOString().split('T')[0],
+      title,
+      story,
+      tags: $("#newTags").value.split(",").map(s => s.trim()).filter(Boolean),
+      unlockDate: $("#newUnlockDate")?.value || null,
+      media
+    };
+
+    const saved = (await kvGet(STORAGE_KEY_MEMS)) || [];
+    saved.unshift(newMem);
+    await saveMemories(saved);
+
+    // Reset UI
+    $("#newTitle").value = ""; $("#newStory").value = ""; $("#newTags").value = "";
+    if($("#newUnlockDate")) $("#newUnlockDate").value = "";
+    
+    await filterMemories();
+    renderGallery();
+    alert("Memory added!");
+  });
 }
 
-function initModal(){
-  $("#closeModal")?.addEventListener("click", closeModal);
-  $("#modal")?.addEventListener("click", (e) => {
-    if(e.target.id === "modal") closeModal();
-  });
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape") closeModal();
-  });
-}
 function initHomeShortcuts() {
   const btnNew = $("#btnAddMemory");
   const btnLetter = $("#btnFutureLetter");
   const btnCapsule = $("#btnTimeCapsule");
 
-  const setupMemoriesForm = (titleText, isFutureItem) => {
+  const setupForm = (title, isFuture) => {
     setActiveSection("memories");
-
-    const formBody = $("#addMemoryBody");
-    if (formBody) {
-      formBody.classList.remove("collapsed");
-      // Update the toggle text if the button exists
-      const toggleBtnText = $("#toggleAddMemory .small");
-      if (toggleBtnText) toggleBtnText.textContent = "tap to collapse";
-    }
-
-    if ($("#newTitle")) $("#newTitle").value = titleText;
-
-    const unlockWrapper = $("#unlockDateWrapper");
-    if (unlockWrapper) {
-      unlockWrapper.style.display = isFutureItem ? "block" : "none";
-      if (!isFutureItem && $("#newUnlockDate")) $("#newUnlockDate").value = "";
-    }
-
-    formBody?.scrollIntoView({ behavior: 'smooth' });
+    $("#addMemoryBody").classList.remove("collapsed");
+    $("#newTitle").value = title;
+    $("#unlockDateWrapper").style.display = isFuture ? "block" : "none";
+    $("#addMemoryBody").scrollIntoView({ behavior: 'smooth' });
   };
 
-  // The ?. ensures that if the button isn't found, the app doesn't break
-  btnNew?.addEventListener("click", () => setupMemoriesForm("", false));
-  btnLetter?.addEventListener("click", () => setupMemoriesForm("Letter to Future Self", true));
-  btnCapsule?.addEventListener("click", () => setupMemoriesForm("Time Capsule", true));
+  btnNew?.addEventListener("click", () => setupForm("", false));
+  btnLetter?.addEventListener("click", () => setupForm("Letter to Future Self", true));
+  btnCapsule?.addEventListener("click", () => setupForm("Time Capsule", true));
 }
 
-// ---------- Boot ----------
+// ---------- Boot (The Brain) ----------
 (async function boot(){
   initNav();
   initModal();
   initQuotes();
-
   initHomeShortcuts(); 
-
-  await renderTags();
-  renderMemories();
   initAddMemoryToggle();
-  initNotes();
-
-  initFilters();
+  await initAddMemory();
+  
+  // Load data
   await renderTagOptions();
   await filterMemories();
-
-  initGalleryUI();
-  await renderGallery();
-
-  initAudioUI();
-  await renderAudioList();
-
-  initNotes();
-  await initAddMemory();
-  await initBackup();
-  initAddMemoryToggle();
+  
+  // Other features
+  if(typeof initGalleryUI === 'function') initGalleryUI();
+  if(typeof renderGallery === 'function') renderGallery();
+  if(typeof initNotes === 'function') initNotes();
 
   setActiveSection("home");
 })();
