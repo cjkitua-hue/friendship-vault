@@ -1027,47 +1027,36 @@ function initModal(){
     if(e.key === "Escape") closeModal();
   });
 }
-// ---------- Home Page Shortcuts Logic ----------
 function initHomeShortcuts() {
-  // 1. Find our buttons/items by the IDs we created
-  const btnNew = $("#btnNewMemory");
+  const btnNew = $("#btnAddMemory");
   const btnLetter = $("#btnFutureLetter");
   const btnCapsule = $("#btnTimeCapsule");
 
-  // A helper function to "setup" the memories page
   const setupMemoriesForm = (titleText, isFutureItem) => {
-    // A. Switch the tab to "Memories"
     setActiveSection("memories");
 
-    // B. Open the form (remove the 'collapsed' class)
     const formBody = $("#addMemoryBody");
-    formBody.classList.remove("collapsed");
-    
-    // Update the toggle button text if it exists
-    const toggleBtn = $("#toggleAddMemory .small");
-    if(toggleBtn) toggleBtn.textContent = "tap to collapse";
-
-    // C. Fill in the title
-    $("#newTitle").value = titleText;
-
-    // D. Show or Hide the "Unlock Date" box
-    const unlockWrapper = $("#unlockDateWrapper");
-    if (isFutureItem) {
-      unlockWrapper.style.display = "block";
-    } else {
-      unlockWrapper.style.display = "none";
-      $("#newUnlockDate").value = ""; // Clear it if it's just a normal memory
+    if (formBody) {
+      formBody.classList.remove("collapsed");
+      // Update the toggle text if the button exists
+      const toggleBtnText = $("#toggleAddMemory .small");
+      if (toggleBtnText) toggleBtnText.textContent = "tap to collapse";
     }
 
-    // E. Scroll down so the user sees the form immediately
-    formBody.scrollIntoView({ behavior: 'smooth' });
+    if ($("#newTitle")) $("#newTitle").value = titleText;
+
+    const unlockWrapper = $("#unlockDateWrapper");
+    if (unlockWrapper) {
+      unlockWrapper.style.display = isFutureItem ? "block" : "none";
+      if (!isFutureItem && $("#newUnlockDate")) $("#newUnlockDate").value = "";
+    }
+
+    formBody?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // 2. Assign the actions to the clicks
+  // The ?. ensures that if the button isn't found, the app doesn't break
   btnNew?.addEventListener("click", () => setupMemoriesForm("", false));
-  
   btnLetter?.addEventListener("click", () => setupMemoriesForm("Letter to Future Self", true));
-  
   btnCapsule?.addEventListener("click", () => setupMemoriesForm("Time Capsule", true));
 }
 
