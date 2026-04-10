@@ -982,6 +982,40 @@ html, body{
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(0,0,0,.08);
 }
+/* Tighter Hero Section */
+.hero {
+  padding: 40px 20px; /* Reduced from 60px/80px */
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2rem; /* Slightly smaller title */
+  margin-bottom: 8px;
+}
+
+/* Slimmer Cards */
+.home-card {
+  padding: 20px; /* Reduced from 28px */
+  border-radius: 18px; /* Slightly tighter corners */
+}
+
+/* Ensure the grid fits better on one screen */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px; /* Reduced gap */
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Adjust the "Future Actions" list padding */
+.action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Tighter list */
+}
+
 
 
 
