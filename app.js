@@ -1027,12 +1027,52 @@ function initModal(){
     if(e.key === "Escape") closeModal();
   });
 }
+// ---------- Home Page Shortcuts ----------
+function initHomeShortcuts() {
+  const btnNew = $("#btnAddMemory");
+  const btnLetter = $("#btnFutureLetter");
+  const btnCapsule = $("#btnTimeCapsule");
+
+  const setupMemoriesForm = (titleText, isFutureItem) => {
+    // 1. Switch to the Memories tab
+    setActiveSection("memories");
+
+    // 2. Uncollapse the form
+    const formBody = $("#addMemoryBody");
+    if (formBody) {
+      formBody.classList.remove("collapsed");
+      const toggleBtnText = $("#toggleAddMemory .small");
+      if (toggleBtnText) toggleBtnText.textContent = "tap to collapse";
+    }
+
+    // 3. Set the Title automatically
+    const titleInput = $("#newTitle");
+    if (titleInput) titleInput.value = titleText;
+
+    // 4. Show/Hide Unlock Date logic
+    const unlockWrapper = $("#unlockDateWrapper");
+    if (unlockWrapper) {
+      unlockWrapper.style.display = isFutureItem ? "block" : "none";
+      if (!isFutureItem && $("#newUnlockDate")) $("#newUnlockDate").value = "";
+    }
+
+    // 5. Scroll to form smoothly
+    formBody?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Add click listeners
+  btnNew?.addEventListener("click", () => setupMemoriesForm("", false));
+  btnLetter?.addEventListener("click", () => setupMemoriesForm("Letter to Future Self", true));
+  btnCapsule?.addEventListener("click", () => setupMemoriesForm("Time Capsule", true));
+}
 
 // ---------- Boot ----------
 (async function boot(){
   initNav();
   initModal();
   initQuotes();
+  
+  initHomeShortcuts();
 
   initFilters();
   await renderTagOptions();
