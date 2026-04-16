@@ -164,33 +164,15 @@ async function filterMemories(){
 
   let list = await getAllMemories();
 
-  // 1. STRICT LOCK CHECK: Hide future memories
-  const today = new Date().toISOString().split('T')[0]; // Gets current date as YYYY-MM-DD
-  list = list.filter(m => {
-     // If it has no unlock date, it's a normal memory. Show it.
-     if (!m.unlockDate) return true; 
-     
-     // If it DOES have an unlock date, only show it if today is past or equal to that date.
-     return m.unlockDate <= today;
-  });
-
-  // 2. Filter by Tag
   if(tag){
     list = list.filter(m => (m.tags || []).includes(tag));
   }
-
-  // 3. Filter by Search Query
   if(q){
     list = list.filter(m => {
       const blob = `${m.title} ${m.story} ${(m.tags||[]).join(" ")}`.toLowerCase();
       return blob.includes(q);
     });
   }
-
-  // 4. Sort and Render
-  list = sortMemories(list, dir);
-  renderMemories(list);
-}
 
   list = sortMemories(list, dir);
   renderMemories(list);
