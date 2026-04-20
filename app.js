@@ -4,7 +4,6 @@ const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 // ---------- IndexedDB helper (Blobs + JSON) ----------
 const DB_NAME = "friendship_vault_db";
 const DB_VERSION = 1;
-const STORAGE_KEY_MEMS = "fv_memories_v1";
 
 function openDB(){
   return new Promise((resolve, reject) => {
