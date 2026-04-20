@@ -1030,8 +1030,11 @@ async function initBackup(){
 
   importBtn?.addEventListener("click", async () => {
     const file = importFile?.files?.[0];
-    if(!file) return;
-
+    // New version (gives you a heads-up)
+if(!file) {
+  alert("Please select a .json backup file first.");
+  return;
+}
     importBtn.textContent = "Importing...";
     importBtn.disabled = true;
 
