@@ -48,7 +48,36 @@ async function mediaPut(blob){
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
-  return id;
+// ---------- Media Import / Export Helpers ----------
+async function mediaPutWithId(blob, id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("media", "readwrite");
+    tx.objectStore("media").put(blob, id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function dataURItoBlob(dataURI) {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+}  return id;
 }
 
 async function mediaGet(id){
@@ -944,38 +973,121 @@ async function initAddMemory(){
     renderAudioList();
   });
 }
-
-// ---------- Backup ----------
+ // ---------- Backup ----------
 async function initBackup(){
-  $("#exportBtn")?.addEventListener("click", async () => {
-    const saved = (await kvGet(STORAGE_KEY_MEMS)) || [];
-    const blob = new Blob([JSON.stringify(saved, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+  const exportBtn = $("#exportBtn");
+  const importBtn = $("#importBtn");
+  const importFile = $("#importFile");
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "friendship-vault-backup.json";
-    a.click();
+  exportBtn?.addEventListener("click", async () => {
+    exportBtn.textContent = "Exporting... (Please wait)";
+    exportBtn.disabled = true;
 
-    URL.revokeObjectURL(url);
+    try {
+      // 1. Get Memories
+      const memories = (await kvGet(STORAGE_KEY_MEMS)) || [];
+
+      // 2. Get Notes (from localStorage)
+      const notes = JSON.parse(localStorage.getItem("fv_notes_pages_v1") || "[]");
+
+      // 3. Get Media Metadata & Blobs
+      const mediaKeys = await mediaGetAllKeys();
+      const mediaMeta = [];
+      const mediaData = {};
+
+      for (const id of mediaKeys) {
+        const meta = await mediaMetaGet(id);
+        if (meta) mediaMeta.push(meta);
+
+        const blob = await mediaGet(id);
+        if (blob) {
+          mediaData[id] = await blobToBase64(blob);
+        }
+      }
+      // Assemble everything into a single V2 Backup Object
+      const backup = {
+        version: 2,
+        memories,
+        notes,
+        mediaMeta,
+        mediaData
+      };
+
+      const outBlob = new Blob([JSON.stringify(backup)], { type: "application/json" });
+      const url = URL.createObjectURL(outBlob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `my-vault-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed", err);
+      alert("Export failed. See console for details.");
+    } finally {
+      exportBtn.textContent = "Export backup (JSON)";
+      exportBtn.disabled = false;
+    }
   });
 
-  $("#importBtn")?.addEventListener("click", async () => {
-    const file = $("#importFile")?.files?.[0];
+  importBtn?.addEventListener("click", async () => {
+    const file = importFile?.files?.[0];
     if(!file) return;
 
-    const text = await file.text();
-    const data = JSON.parse(text);
-    if(!Array.isArray(data)) throw new Error("Invalid backup format.");
+    importBtn.textContent = "Importing...";
+    importBtn.disabled = true;
 
-    await saveMemories(data);
-    await renderTagOptions();
-    await filterMemories();
-    alert("Imported successfully.");
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
 
-    // refresh other views
-    renderGallery();
-    renderAudioList();
+      if (Array.isArray(data)) {
+        // Fallback for your old V1 backups (Memories only)
+        await saveMemories(data);
+        alert("Imported old V1 backup (memories only).");
+      } else if (data.version === 2) {
+        // V2 Import: Restore Everything
+        if (data.memories) await saveMemories(data.memories);
+        if (data.notes) localStorage.setItem("fv_notes_pages_v1", JSON.stringify(data.notes));
+
+        // Restore Media Metadata
+        if (data.mediaMeta) {
+          for (const meta of data.mediaMeta) {
+            await mediaMetaSet(meta.id, meta);
+          }
+        }
+
+        // Restore Media Blobs
+        if (data.mediaData) {
+          for (const [id, b64] of Object.entries(data.mediaData)) {
+            const blob = dataURItoBlob(b64);
+            await mediaPutWithId(blob, id); // Use our new helper to keep original IDs!
+          }
+        }
+      } else {
+        throw new Error("Unknown backup format.");
+      }
+
+      // Refresh UI components
+      await renderTagOptions();
+      await filterMemories();
+      renderGallery();
+      renderAudioList();
+      
+      // Reload the page so the Notes section cleanly initializes with the new data
+      if(confirm("Import complete! Press OK to refresh the page and apply all notes and media.")) {
+        location.reload();
+      }
+
+    } catch (err) {
+      console.error("Import failed", err);
+      alert("Import failed: " + err.message);
+    } finally {
+      importBtn.textContent = "Import backup";
+      importBtn.disabled = false;
+      importFile.value = "";
+    }
   });
 }
 
