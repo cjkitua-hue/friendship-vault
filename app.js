@@ -48,6 +48,32 @@ async function mediaPut(blob){
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+  // --- Missing Database Helpers (Restore These) ---
+async function mediaGet(id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("media", "readonly");
+    const req = tx.objectStore("media").get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function mediaMetaGet(id){
+  const meta = await kvGet("media_meta_" + id);
+  return meta;
+}
+async function mediaMetaSet(id, meta){
+  return await kvSet("media_meta_" + id, meta);
+}
+async function mediaGetAllKeys(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("media", "readonly");
+    const req = tx.objectStore("media").getAllKeys();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
 // ---------- Media Import / Export Helpers ----------
 async function mediaPutWithId(blob, id){
   const db = await openDB();
