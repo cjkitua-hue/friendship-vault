@@ -48,31 +48,7 @@ async function mediaPut(blob){
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
-  // --- Missing Database Helpers (Restore These) ---
-async function mediaGet(id){
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction("media", "readonly");
-    const req = tx.objectStore("media").get(id);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-async function mediaMetaGet(id){
-  const meta = await kvGet("media_meta_" + id);
-  return meta;
-}
-async function mediaMetaSet(id, meta){
-  return await kvSet("media_meta_" + id, meta);
-}
-async function mediaGetAllKeys(){
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction("media", "readonly");
-    const req = tx.objectStore("media").getAllKeys();
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
+  return id;
 }
 // ---------- Media Import / Export Helpers ----------
 async function mediaPutWithId(blob, id){
@@ -84,7 +60,6 @@ async function mediaPutWithId(blob, id){
     tx.onerror = () => reject(tx.error);
   });
 }
-
 function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -93,7 +68,6 @@ function blobToBase64(blob) {
     reader.readAsDataURL(blob);
   });
 }
-
 function dataURItoBlob(dataURI) {
   const byteString = atob(dataURI.split(',')[1]);
   const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
@@ -103,9 +77,8 @@ function dataURItoBlob(dataURI) {
     ia[i] = byteString.charCodeAt(i);
   }
   return new Blob([ab], { type: mimeString });
-}  return id;
 }
-
+// ---------- Missing Database Helpers (Restored & Cleaned) ----------
 async function mediaGet(id){
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -115,7 +88,6 @@ async function mediaGet(id){
     req.onerror = () => reject(req.error);
   });
 }
-
 async function mediaGetAllKeys(){
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -126,16 +98,16 @@ async function mediaGetAllKeys(){
     req.onerror = () => reject(tx.error);
   });
 }
-
-// ---------- Media metadata (stored in kv) ----------
+// ---------- Media metadata (consistent key usage) ----------
 const MEDIA_META_PREFIX = "fv_media_meta_v1:";
 function mediaMetaKey(id){ return MEDIA_META_PREFIX + id; }
 
 function kindFromMime(mime){
   if(!mime) return "file";
-  if(mime.startsWith("image/")) return "image";
-  if(mime.startsWith("video/")) return "video";
-  if(mime.startsWith("audio/")) return "audio";
+  const m = mime.toLowerCase();
+  if(m.startsWith("image/")) return "image";
+  if(m.startsWith("video/")) return "video";
+  if(m.startsWith("audio/")) return "audio";
   return "file";
 }
 
@@ -158,7 +130,6 @@ async function getAllMemories(){
 async function saveMemories(savedMemories){
   await kvSet(STORAGE_KEY_MEMS, savedMemories);
 }
-
 // ---------- UI helpers ----------
 function setActiveSection(id){
   $$(".section").forEach(s => s.classList.remove("active"));
